@@ -105,7 +105,7 @@ export class Map implements OnChanges{
     // Ajouter un nouveau marker
     const newMarker = L.marker([lat, lng], { icon: mkr })
       .addTo(this.map)
-      // Ajoute une popup avec les détails du POI (adresse, horaires, site web, téléphone, etc.)
+      // Ajoute une popup avec les détails du POI (adresse, horaires, site web, téléphone, etc.) et un bouton
       .bindPopup(`<h3>${id}. ${this.pois[id-1]?.name || 'POI'}</h3>
                         <h5>${(this.pois[id-1]?.address?.city)?.toUpperCase()}</h5><br><br>
                         <button class="marker-details-btn" data-index="${id}" style="width:100px;
