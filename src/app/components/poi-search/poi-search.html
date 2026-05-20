@@ -1,0 +1,33 @@
+<div>
+    <form [formGroup]="poiSearchForm" class="poi-search-container">
+        
+        <!-- Ligne 1-->
+        <label for="place" class="label-place">Lieu à rechercher :</label>
+        <label for="limit" class="label-limit">Nb maxi. à rechercher [1..20]:</label>
+        <button class="btn-search" (click)="onSearch()" [disabled]="!selectedPlace">Rechercher</button>
+
+        <!-- Ligne 2-->
+        <input id="place" class="input-place" type="text" placeholder="Entrer un lieu..." formControlName="place" [class.invalid]="isInvalid('place')" autocomplete="off">
+        <input id="limit" class="input-limit" type="number" formControlName="limit" [class.invalid]="isInvalid('limit')" [class.enabled]="this.selectedPlace"]>
+
+        <!-- Ligne 3-->
+        <!--<div class="suggestions">Suggestions :</div>-->
+        
+        @if (suggestions.length > 0) {
+
+            <ul class="suggestions-list">
+
+            @for (suggestion of suggestions; track suggestion.place_id) {
+
+                <li class="suggestion" (click)="selectSuggestion(suggestion)">
+                    {{ suggestion.name }}
+                </li>
+
+            }
+
+            </ul>
+
+        }
+
+    </form>
+</div>     

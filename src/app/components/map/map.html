@@ -1,0 +1,37 @@
+<div id="map"></div>
+
+@if (selectedPlace) {
+
+    <div class="place-details">
+
+    <button class="close-btn" (click)="selectedPlace=null">✕</button>
+
+    <h3>
+        {{ selectedPlace.name }}
+    </h3>
+    <p>{{ selectedPlace.address.road }}, {{ selectedPlace.address.postcode }} - {{ selectedPlace.address.city }}</p> 
+    
+    @if(selectedPlace.details.phone){
+        <p>Tél.: {{ selectedPlace.details.phone }}</p>
+    } @else {
+        <p>Tél.: Inconnu</p>
+    }
+
+    @if(selectedPlace.details.website){
+        <a [href]="selectedPlace.details.website" target="_blank" rel="noopener noreferrer">
+            🌐 {{ selectedPlace.details.website }}
+        </a>
+    } @else {
+        <p>🌐 Inconnu</p>
+    }
+
+    @if(selectedPlace.details.openHours) {
+        <p>Horaires : {{ formatOpeningHours(selectedPlace.details.openHours) }}</p>
+    } @else {
+        <p>Horaires : Non disponibles</p>
+    }
+
+    </div>
+
+}
+
