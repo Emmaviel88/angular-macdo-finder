@@ -14,10 +14,12 @@ export class Map implements OnChanges{
   @Input() selectionPlace: POI[] = [];
 
   private map!: L.Map;
+  public newMapCenter!: L.Marker;
   markers: L.Marker[] = [];
   public mcdoIcon!: L.Icon;
   public defIcon!: L.Icon;
   private mcDoFound : POI[] = [];
+  private poisBounds: L.LatLngTuple[] = [];
 
   // variables pour stocker les coordonnées initiales de la carte (Paris) pour pouvoir y revenir lors du reset de la carte
   // Coordonnées de Paris par défaut
@@ -41,12 +43,18 @@ export class Map implements OnChanges{
     if(changes['selectionPlace'] && this.map) {
       const mapCenter = changes['selectionPlace']?.currentValue[0];
       console.log('map.ts-L40 : mapCenter', mapCenter)
-      // marker std sur selectionPlace[0]
+      // Supprime le marker précédent s'il existe
+      if(this.newMapCenter) {
+        this.map.removeLayer(this.newMapCenter);
+      }
       // this.addMarker(parseFloat(mapCenter.lat), parseFloat(mapCenter.lon), this.mcdoIcon, 0);
       const newMarker = L.marker([mapCenter.lat, mapCenter.lon])
         .addTo(this.map);
-      this.map.setView([mapCenter.lat, mapCenter.lon], 10);  
-      // Efface les anciens markers
+      // Centre la carte sur le point (le zoom sera ajusté pour montrer tous les POIs McDonald's) 
+      this.map.setView([mapCenter.lat, mapCenter.lon]); 
+      // mémorise le nouveau marker pour pouvoir le supprimer lors d'une prochaine recherche
+      this.newMapCenter = newMarker; 
+      // Efface les anciens markers McDonald's
       this.clearMarkers();
       return;
     }
@@ -55,8 +63,16 @@ export class Map implements OnChanges{
       console.log('map.ts-L44 : POIs[]', this.mcDoFound);
       this.mcDoFound.forEach((item: any) => {
         this.addMarker(item.lat, item.lon, this.mcdoIcon, item.id+1);
+
+        // Mémorise les coordonnées pour calcul des limites et adaptation du zoom
+        this.poisBounds.push([item.lat, item.lon]);
       });
-      // this.updateMarkers();
+        console.log('map.ts-L69 : ', this.poisBounds);
+        if (this.poisBounds.length > 0) {
+          const bounds = L.latLngBounds(this.poisBounds);
+          console.log(`map.ts-L72 : NW ${bounds.getNorthWest()} / ${bounds.getSouthEast()}`);
+          this.map.fitBounds(bounds, {padding: [50, 50]});
+        }
       return;
     }
   }
@@ -106,15 +122,19 @@ export class Map implements OnChanges{
     const newMarker = L.marker([lat, lng], { icon: mkr })
       .addTo(this.map)
       // Ajoute une popup avec les détails du POI (adresse, horaires, site web, téléphone, etc.) et un bouton
-      .bindPopup(`<h3>${id}. ${this.pois[id-1]?.name || 'POI'}</h3>
-                        <h5>${(this.pois[id-1]?.address?.city)?.toUpperCase()}</h5><br><br>
+      .bindPopup(`<div class="popup-content" >
+                        <h3>${id}. ${this.pois[id-1]?.name || 'POI'}</h3>
+                        <h3>${this.pois[id-1]?.address?.postcode} -  ${this.pois[id-1]?.address?.city?.toUpperCase()}</h3>
+                        <p><small>Lat: ${this.pois[id-1]?.lat} - Lon: ${this.pois[id-1]?.lon}</small>
+                        <br><br>
                         <button class="marker-details-btn" data-index="${id}" style="width:100px;
                                                                                     height:40px;
                                                                                     border-radius:20px;
                                                                                     border:none;
                                                                                     cursor:pointer;
                                                                                     background: #007BFF;
-                                                                                    color: white;">Selectionner</button>`);
+                                                                                    color: white;">Selectionner</button>
+                                                                                    </div>`);
     
     // Gestion de l'event click sur le bouton du popup ouvert 
     newMarker.on('popupopen', (e) => {
@@ -145,6 +165,7 @@ export class Map implements OnChanges{
       this.map.removeLayer(marker);
     });
     this.markers = []; // Vider le tableau
+    this.poisBounds = [];
   }
 
   formatOpeningHours(hours: string): string {

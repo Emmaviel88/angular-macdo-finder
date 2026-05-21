@@ -103,8 +103,13 @@ export class PoiSearch implements OnInit, OnDestroy {
     
     this.nominatimSvc.searchMcDo(place, limit).subscribe({
       next: pois => {
-        console.log('poiSearch L94: POIs:', pois);
-        this.poisFound.emit(pois);
+        if(pois.length > 0) {
+          console.log('poiSearch L94: POIs:', pois);
+          this.poisFound.emit(pois);
+        } else {
+          alert('Aucun McDonald\'s trouvé autour de ce point');
+          return;
+        }
       },
       error: err => {
         console.error("Erreur lors de la recherche des McDonald\'s", err);

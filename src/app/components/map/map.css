@@ -7,14 +7,14 @@ html, body {
 }
 
 #map {
-  height: calc(100vh - 160px);
+  height: calc(100vh - 90px);
   /*min-height: 500px;*/
 }
 
 .place-details {
   position: absolute;
 
-  bottom: 60px;
+  bottom: 16px;
   left: 16px;
 
   width: 600px;
@@ -24,7 +24,7 @@ html, body {
 
   z-index: 2000;
 
-  background: rgb(195, 255, 183);
+  background: rgb(242, 247, 199);
 
   border-radius: 16px;
 
@@ -46,4 +46,13 @@ html, body {
   background-color: #0266fc;
   height: 32px;
   border-radius: 32px;
+}
+
+.popup-content {
+  border-radius: 16px;
+  margin: 0;
+  padding: 0;
+  text-align:center;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
 }
