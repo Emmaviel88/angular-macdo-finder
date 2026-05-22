@@ -37,7 +37,8 @@ html, body {
 .close-btn {
   float: right;
   border: none;
-  background: transparent;
+  background: #0266fc;
+  color: white;
   font-size: 18px;
   cursor: pointer;
 }
