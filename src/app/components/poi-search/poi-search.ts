@@ -16,7 +16,7 @@ import { debounceTime, distinctUntilChanged, switchMap, filter, Subscription, of
 
 export class PoiSearch implements OnInit, OnDestroy {
   public poiSearchForm: FormGroup;        // Form pour la recherche
-  public error = signal<boolean>(false);  // Signal booléen pour afficher un message d'erreur à l'utilisateur
+  public error = signal<string>('');      // Signal string pour afficher un message d'erreur à l'utilisateur
   public pois: POI[] = [];                // tableau de POI pour stocker les POIs trouvés
   public suggestions: Suggestion[] = [];  // tableau de Suggestions
   public selectedPlace = false;           // variable de getion de la sélection (pourrait être remplacée par un Signal<boolean>())
@@ -45,6 +45,7 @@ export class PoiSearch implements OnInit, OnDestroy {
         if(!place || place.trim().length <3) {
           this.suggestions = [];
           this.selectedPlace = false;
+          this.error.set('');
           return of([]);
         } 
         // Lance la requête API pour trouver le lieu recherché (limité à 1 pour ne pas avoir de doublons)
@@ -52,21 +53,26 @@ export class PoiSearch implements OnInit, OnDestroy {
       })      
     ).subscribe({
       next: results => {            // next est appelé en cas de succès de la requête
-        this.suggestions = results; // récupère la suggestion
-        this.selectedPlace = false; // Reset la variable selectedPlace
-        this.error.set(false);      // Reset le signal
-        this.cdr.detectChanges();   // Force le refresh affichage
+        if(results.length > 0) {
+          this.suggestions = results; // récupère la suggestion
+          this.selectedPlace = false; // Reset la variable selectedPlace
+          this.error.set('');
+          this.cdr.detectChanges();   // Force le refresh affichage
+        } else {
+          this.error.set('Aucune suggestion trouvée !');      // Set le signal pour afficher une alerte
+        }
       },
       error: err => {               // error est appelé en cas d'erreur lors de la requête
         this.suggestions = [];      // vide le tableau de suggestions
         console.error(err);         // Affiche l'erreur dans la console
-        this.error.set(true);       // Set le signal
+        this.error.set('Erreur lors de la recherche de suggestions');       // Set le signal
       }
     });
     if(!this.poiSearchForm.valid) { //
       this.suggestions = [];
       this.selectedPlace = false;
       this.cdr.detectChanges();
+      this.error.set('');
     }
   }
   
@@ -108,7 +114,7 @@ export class PoiSearch implements OnInit, OnDestroy {
       next: pois => {                 // next est appelé si la requête renvoie une réponse
         if(pois.length > 0) {         // Si la requête a renvoyé au moins un POI
           this.poisFound.emit(pois);  // émet le Signal poisFound vers App (en paramètre le tableau de POIS reçus de l'API)
-          this.error.set(false);      // Reset du signal error
+          this.error.set('');         // Reset du signal error
         } else {
           alert('Aucun McDonald\'s trouvé autour de ce point'); // Si aucun POI n'a été retourné mais qu'il n'y a pas d'erreur, c'est un alert qui l'indique à l'utilisateur
           return;
@@ -116,7 +122,7 @@ export class PoiSearch implements OnInit, OnDestroy {
       },
       error: err => {
         console.error("Erreur lors de la recherche des McDonald\'s", err);
-        this.error.set(true);
+        this.error.set('Erreur lors de la recherche de McDonald\'s');
       }
     })
 
