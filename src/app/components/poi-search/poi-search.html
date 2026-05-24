@@ -11,7 +11,9 @@
         <input id="limit" class="input-limit" type="number" formControlName="limit" [class.invalid]="isInvalid('limit')" [class.enabled]="this.selectedPlace"]>
 
         <!-- Ligne 3-->
-        <!--<div class="suggestions">Suggestions :</div>-->
+        @if(this.error()) {
+            <div class="error">Erreur !</div>
+        }
         
         @if (suggestions.length > 0) {
 

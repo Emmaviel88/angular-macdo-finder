@@ -11,7 +11,6 @@ import { POI } from '../models/poi';
 
 export class NominatimSvc {
   private readonly NOMINATIM_BASE_URL = 'https://nominatim.openstreetmap.org';
-  // private readonly USER_AGENT = 'McDo-Angular/1.0 (emmaviel88@gmail.com)';
 
   constructor(private http: HttpClient) {}
 
@@ -19,20 +18,21 @@ export class NominatimSvc {
   searchSuggestions(query: string, limit: number): Observable<Suggestion[]> {
 
     // Tant que la saisie n'atteint pas 3 caractères, on ne fait pas de requête
+    // Ce code ne devrait pas être utilisé car la Form n'est pas valide si l'input est < 3 caractère.
+    // Je laisse juste ce test pour améliorer la fiabilité
     if (query.length < 3) {
       return of([]);
     }
-    // Configure les paramètres de la requête GET 
+    // Configure les paramètres de la requête HTTP GET 
     const params = new HttpParams()
-      .set('q', query + '+France')
-      .set('format', 'json')
-      .set('limit', limit.toString())
-      .set('addressdetails', '1')
-      .set('accept-language', 'fr');
+      .set('q', query + '+France')    // les recherches seront limitées à la France
+      .set('format', 'json')          // format de réponse attendue
+      .set('limit', limit.toString()) // nombre maxi de suggestions attendue (1) 
+      .set('addressdetails', '1')     // active les détails d'adresse
+      .set('accept-language', 'fr');  // si les traductions existent, demande les réponses en français
 
-    return this.http.get<Suggestion[]>(`${this.NOMINATIM_BASE_URL}/search`, { 
+    return this.http.get<Suggestion[]>(`${this.NOMINATIM_BASE_URL}/search`, { // Envoi de la requête API 
       params 
-      // headers: {'User-Agent': this.USER_AGENT} 
     }).pipe(
       catchError(error => {
         console.error('Erreur lors de la recherche de suggestions', error);
@@ -45,15 +45,14 @@ export class NominatimSvc {
   searchMcDo(place: string, limit: number = 5): Observable<POI[]>{
     // Configure les paramètres de la requête GET
     const params = new HttpParams ()
-      .set('q', `McDonald's+${place}+France`)
-      .set('format', 'json')
-      .set('limit', `${limit}`)
-      .set('addressdetails', '1' )
-      .set('extratags', 1)
+      .set('q', `McDonald's+${place}+France`) // Recherche des McDonald's à proximité du lieu sélectionné et en France
+      .set('format', 'json')                  // format de réponse attendue
+      .set('limit', `${limit}`)               // nombre maxi de POIs (selon la valeur de l'input number)
+      .set('addressdetails', '1' )            // active les détails d'adresse
+      .set('extratags', 1)                    // active les extratags (tél., adresse web, horaires s'ils sont connus)
 
-      return this.http.get<POI[]>(`${this.NOMINATIM_BASE_URL}/search`, {
+      return this.http.get<POI[]>(`${this.NOMINATIM_BASE_URL}/search`, { // retourne le résultat de la requête API 
         params
-        // headers: {'User-Agent': this.USER_AGENT}
       }).pipe(
         switchMap((results: any[]) => {
           return of(results.map((result, index) => ({

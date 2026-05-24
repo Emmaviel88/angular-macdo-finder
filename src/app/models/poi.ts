@@ -1,3 +1,4 @@
+// Modèle d'objet POI
 export interface POI {
   id: number;
   name: string;
