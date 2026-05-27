@@ -30,15 +30,15 @@ export class Map implements OnChanges{
   // - Si true  : affiche le popup des détails du McDonald's sélectionné
   public selectedPlace : any | null = null;  
 
-  // COnstructeur avec détection de changements (pour forcer le refresh d'affichage)
+  // Constructeur avec détection de changements (pour forcer le refresh d'affichage)
   constructor(private cdr: ChangeDetectorRef){}
   
-  ngOnInit(): void {
+  ngOnInit() {
     
   }
   
-  // Appel de l'initialisation d ela carte après avoir créé les éléments qui y seront appelés.
-  ngAfterViewInit(): void {
+  // Appel de l'initialisation dla carte après avoir créé les éléments qui y seront appelés.
+  ngAfterViewInit() {
     this.initMap();
   }
   
@@ -75,9 +75,9 @@ export class Map implements OnChanges{
     if(changes['pois']) {
       // Récupère le tableau des McDos trouvés (retournés par Nominatim)
       this.mcDoFound = changes['pois']?.currentValue;
-      // Parcours le tableau pour et ... 
+      // Parcours le tableau pour chaque POI et ... 
       this.mcDoFound.forEach((item: any) => {
-        // ...appelle addMarker pour ajouter un marker par restaurant
+        // ...appelle addMarker pour ajouter un marker par McDo
         this.addMarker(item.lat, item.lon, this.mcdoIcon, item.id+1);
 
         // Mémorise les coordonnées pour calcul des limites et adaptation du zoom
@@ -87,14 +87,14 @@ export class Map implements OnChanges{
         // Calcule les limites de l'affichage pour voir tous les McDos trouvés
         if (this.poisBounds.length > 0) {
           const bounds = L.latLngBounds(this.poisBounds);
-          console.log(`map.ts-L72 : NW ${bounds.getNorthWest()} / ${bounds.getSouthEast()}`);
+          // console.log(`map.ts-L72 : NW ${bounds.getNorthWest()} / ${bounds.getSouthEast()}`);
           this.map.fitBounds(bounds, {padding: [50, 50]});
         }
       return;
     }
   }
 
-  private initMap(): void {
+  private initMap() {
     // Initialisation de la carte (désactive le control zoom par défaut pour le personnaliser ensuite)
     this.map = L.map('map', {zoomControl: false}).setView(this.initialMapCenter, this.initialZoomLevel);    
     // Ajout d'un control zoom personnalisé (en haut à droite) de la carte pour ne pas masquer la liste des suggestions de recherche qui s'affiche en haut à gauche
@@ -124,7 +124,7 @@ export class Map implements OnChanges{
     });
   }
 
-  resetMap(): void {
+  resetMap() {
     // Réinitialiser la vue de la carte à la position initiale (Paris) et au niveau de zoom par défaut
     this.map.setView(this.initialMapCenter, this.initialZoomLevel);
   } 
@@ -135,7 +135,7 @@ export class Map implements OnChanges{
   }
 
   // Fonction d'ajout des markers McDos (avec popup et bouton intégré de sélection)
-  addMarker(lat: number, lng: number, mkr: L.Icon, id: number): void {
+  addMarker(lat: number, lng: number, mkr: L.Icon, id: number) {
     // Ajouter un nouveau marker
     const newMarker = L.marker([lat, lng], { icon: mkr })
       .addTo(this.map)

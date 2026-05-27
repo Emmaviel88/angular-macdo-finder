@@ -8,7 +8,7 @@
 
         <!-- Ligne 2-->
         <input id="place" class="input-place" type="text" placeholder="Entrer un lieu..." formControlName="place" [class.invalid]="isInvalid('place')" autocomplete="off">
-        <input id="limit" class="input-limit" type="number" formControlName="limit" [class.invalid]="isInvalid('limit')" [class.enabled]="this.selectedPlace"]>
+        <input id="limit" class="input-limit" type="number" formControlName="limit" [class.invalid]="isInvalid('limit')" [class.enabled]="this.selectedPlace">
 
         <!-- Ligne 3-->
         @if(this.error() != '' && !isInvalid('place')) {

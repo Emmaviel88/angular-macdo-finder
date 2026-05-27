@@ -19,9 +19,8 @@
 
 .poi-search-container .error {
   color: red;
-  font-size: 32px;
+  font-size: 24px;
   font-weight: bold;
-  background-color: yellow;
   text-align: center;
   border-radius: 4px;
   padding: 8px;

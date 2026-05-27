@@ -84,7 +84,7 @@ export class PoiSearch implements OnInit, OnDestroy {
   selectSuggestion(suggestion: any): void {
     this.selectedPlace = true;    // Marque la sélection comme active
     this.suggestions = [];        // Reset le tableau de suggestions (ce qui a pour effet de masquer la DIV dans l'HTML)
-    const mapCenter: POI[] = [{   // Mémorise le centre carte pour le transmettre à App via l'Output selectedPlace
+    const mapCenter: POI[] = [{   // Mémorise le centre carte pour le transmettre à App via l'Output selectionPlace
             id: suggestion.place_id,
             name: suggestion.name,
             lat: parseFloat(suggestion.lat),
