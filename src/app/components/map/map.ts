@@ -131,7 +131,7 @@ export class Map implements OnChanges{
 
   updateMarkers() {
 
-    console.log('map.ts L23 : ', this.pois);
+    // console.log('map.ts L23 : ', this.pois);
   }
 
   // Fonction d'ajout des markers McDos (avec popup et bouton intégré de sélection)

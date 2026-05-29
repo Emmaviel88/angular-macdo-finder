@@ -86,7 +86,7 @@
 
 .poi-search-container .suggestions-list {
   grid-row: 3;
-  grid-column: 1 span 2;
+  grid-column: 1;
   list-style: none;
   cursor: pointer;
 }
@@ -100,3 +100,4 @@
   background-color: #0056b3;
   color: white;
 }
+

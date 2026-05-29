@@ -1,7 +1,12 @@
 <div id="map"></div>
+<!--
+    <div class="places-count" [hidden]="pois.length === 0 || pois === []">
+        {{ pois.length }} restaurants trouvés.
+    </div>
+-->
 
 @if (selectedPlace) {
-
+    
     <div class="place-details">
 
     <button class="close-btn" (click)="selectedPlace=null">✕</button>
@@ -14,7 +19,7 @@
     @if(selectedPlace.details.phone){
         <p>Tél.: {{ selectedPlace.details.phone }}</p>
     } @else {
-        <p>Tél.: Inconnu</p>
+        <p>Tél.: Aucune donnée trouvée</p>
     }
 
     @if(selectedPlace.details.website){
@@ -22,7 +27,7 @@
             🌐 {{ selectedPlace.details.website }}
         </a>
     } @else {
-        <p>🌐 Inconnu</p>
+        <p>🌐 Aucune donnée trouvée</p>
     }
 
     @if(selectedPlace.details.openHours) {

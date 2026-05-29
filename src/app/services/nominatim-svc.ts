@@ -18,8 +18,7 @@ export class NominatimSvc {
   searchSuggestions(query: string, limit: number): Observable<Suggestion[]> {
 
     // Tant que la saisie n'atteint pas 3 caractères, on ne fait pas de requête
-    // Ce code ne devrait pas être utilisé car la Form n'est pas valide si l'input est < 3 caractère.
-    // Je laisse juste ce test pour améliorer la fiabilité
+    // Ce code ne devrait pas être utilisé car la Form n'est pas valide si l'input est < 3 caractères.
     if (query.length < 3) {
       return of([]);
     }

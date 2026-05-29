@@ -20,13 +20,13 @@
             <ul class="suggestions-list">
 
             @for (suggestion of suggestions; track suggestion.place_id) {
-
-                <li class="suggestion" (click)="selectSuggestion(suggestion)">
-                    {{ suggestion.name }}
-                </li>
-
+                <!-- On filtre pour lister uniquement les villes et villages -->
+                @if(suggestion.addresstype === 'city' || suggestion.addresstype === 'town' || suggestion.addresstype === 'village' ) {
+                    <li class="suggestion" (click)="selectSuggestion(suggestion)">
+                        {{ suggestion.name }}
+                    </li>
+                }
             }
-
             </ul>
 
         }

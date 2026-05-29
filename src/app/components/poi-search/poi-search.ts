@@ -20,6 +20,7 @@ export class PoiSearch implements OnInit, OnDestroy {
   public pois: POI[] = [];                // tableau de POI pour stocker les POIs trouvés
   public suggestions: Suggestion[] = [];  // tableau de Suggestions
   public selectedPlace = false;           // variable de getion de la sélection (pourrait être remplacée par un Signal<boolean>())
+  public mapCenter: POI[]  = [];
 
   // Output pour la position centrale de la carte
   @Output() selectionPlace = new EventEmitter<POI[]>();
@@ -42,37 +43,31 @@ export class PoiSearch implements OnInit, OnDestroy {
       distinctUntilChanged(), // Ne réagit que si il y a eu changement  
       switchMap(formValues => { // permet d'annuler la requête éventuellement en cours pour relancer la nouvelle si changement
         const { place, limit } = formValues;
-        if(!place || place.trim().length <3) {
-          this.suggestions = [];
-          this.selectedPlace = false;
-          this.error.set('');
+        if(!place || place.trim().length <3) { // Si place = null ou que la longueur saisie est < 3 caractères, on retourne []
+          this.clearAllDatas();
           return of([]);
-        } 
-        // Lance la requête API pour trouver le lieu recherché (limité à 1 pour ne pas avoir de doublons)
-        return this.nominatimSvc.searchSuggestions(place, 1);
+        }        
+        // Lance la requête API pour trouver le lieu recherché (limité à limit)
+        return this.nominatimSvc.searchSuggestions(place, parseInt(limit));
       })      
     ).subscribe({
-      next: results => {            // next est appelé en cas de succès de la requête
+      next: results => {              // next est appelé automatiquement en cas de succès de la requête
         if(results.length > 0) {
           this.suggestions = results; // récupère la suggestion
-          this.selectedPlace = false; // Reset la variable selectedPlace
-          this.error.set('');
-          this.cdr.detectChanges();   // Force le refresh affichage
+          this.clearDatasExceptSuggestions();
+          // console.log(`poi-search L58: Suggestions trouvées`, this.suggestions, this.pois);
         } else {
           this.error.set('Aucune suggestion trouvée !');      // Set le signal pour afficher une alerte
         }
       },
       error: err => {               // error est appelé en cas d'erreur lors de la requête
-        this.suggestions = [];      // vide le tableau de suggestions
+        this.clearAllDatas();
         console.error(err);         // Affiche l'erreur dans la console
         this.error.set('Erreur lors de la recherche de suggestions');       // Set le signal
       }
     });
     if(!this.poiSearchForm.valid) { //
-      this.suggestions = [];
-      this.selectedPlace = false;
-      this.cdr.detectChanges();
-      this.error.set('');
+      this.clearAllDatas();
     }
   }
   
@@ -80,16 +75,32 @@ export class PoiSearch implements OnInit, OnDestroy {
     // this.subscriptions?.unsubscribe();
   }
 
-  // Fonction appelée lros de la sélection de la suggestion
-  selectSuggestion(suggestion: any): void {
+  clearAllDatas() {
+      this.suggestions = [];
+      this.clearDatasExceptSuggestions();
+      return;
+  }
+
+  clearDatasExceptSuggestions() {
+      this.pois = [];
+      this.selectedPlace = false;
+      this.error.set('');
+      this.cdr.detectChanges();
+      return;
+  }
+
+  // Fonction appelée lors de la sélection de la suggestion
+  selectSuggestion(suggestion: any) {
     this.selectedPlace = true;    // Marque la sélection comme active
     this.suggestions = [];        // Reset le tableau de suggestions (ce qui a pour effet de masquer la DIV dans l'HTML)
-    const mapCenter: POI[] = [{   // Mémorise le centre carte pour le transmettre à App via l'Output selectionPlace
-            id: suggestion.place_id,
-            name: suggestion.name,
-            lat: parseFloat(suggestion.lat),
-            lon: parseFloat(suggestion.lon) 
-          }]
+    this.pois = [];
+    // console.log('L95: pois.length', this.pois.length);
+    this.mapCenter = [{   // Mémorise le centre carte pour le transmettre à App via l'Output selectionPlace
+      id: suggestion.place_id,
+      name: suggestion.name,
+      lat: parseFloat(suggestion.lat),
+      lon: parseFloat(suggestion.lon) 
+    }]
 
     this.poiSearchForm.patchValue(
       {
@@ -100,9 +111,9 @@ export class PoiSearch implements OnInit, OnDestroy {
 
       }
     );
-
-    this.selectionPlace.emit(mapCenter);  // Émet le Signal Output vers App avec le centre carte en paramètre
-
+    this.pois = [];
+    this.selectionPlace.emit(this.mapCenter);  // Émet le Signal Output vers App avec le centre carte en paramètre
+    return;
   }
 
   // Appelée quand on clique le bouton Rechercher (qui n'est accessible qu'après sélection de la suggestion)
@@ -125,10 +136,10 @@ export class PoiSearch implements OnInit, OnDestroy {
         this.error.set('Erreur lors de la recherche de McDonald\'s');
       }
     })
-
+    return;
   }
 
-  // FOnction de gestion du status 'invalid' de chaque input (text et number) appelé depuis le template
+  // Fonction de gestion du status 'invalid' de chaque input (place ou limit) appelée depuis le template
   isInvalid(controlName: string): boolean {
     const control = this.poiSearchForm.get(controlName);
     return !!control?.invalid && (control?.dirty || control?.touched);
